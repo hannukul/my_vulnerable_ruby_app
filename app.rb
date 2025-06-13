@@ -59,3 +59,8 @@ post '/register' do
     puts "Database error: #{e}"
   end
 end
+
+get '/logout' do
+  session.clear
+  redirect '/'
+end
