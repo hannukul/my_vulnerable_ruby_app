@@ -1,6 +1,11 @@
 <html>
   <body>
     <h1>Super simple journal app</h1>
+    <% if @logged_in %>
+      <p>You are logged in as <%= @username %>.</p>
+    <% else %>
+      <p>You are not logged in.</p>
+    <% end %>
     <ul>
       Journal entries goes here
     <\ul>
