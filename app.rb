@@ -1,8 +1,10 @@
 require 'sinatra'
 require 'sqlite3'
+require 'dotenv/load'
+
 use Rack::Session::Cookie, key: 'rack.session',
                            path: '/',
-                           secret: 'change_this_to_a_secure_random_string_adfdsfsadfads_adfdsafsfsafagdgsda_gfasgsdfgagagsdfagsafgaagdgagasgddgasdgdsag'
+                           secret: ENV['SESSION_SECRET']
 
 db = SQLite3::Database.open "data.db"
 db.results_as_hash = true
@@ -49,14 +51,20 @@ post '/login' do
 end
 
 post '/register' do
+  # TODO
+  # check if user exists before adding.
+
   username = params["username"]
   password = params["password"]
-
+  
   begin
     db.execute("INSERT INTO users (username, password) VALUES (?, ?)", [username, password])
-    "Successfully added user #{username} to database"
+    @message = "Registration successful! Redirecting to home..."
+    erb :message_and_redirect
   rescue SQLite3::Exception => e
     puts "Database error: #{e}"
+    @message = "Registration failed."
+    erb :message_and_redirect
   end
 end
 
