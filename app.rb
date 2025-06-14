@@ -21,6 +21,8 @@ get '/' do
     @logged_in = true
     @username = session[:username] 
   end
+  @entries = db.query "SELECT entry_id, created_at, title, entry FROM entries WHERE user_id=?", session[:user_id]
+  puts @entries
   erb :index
 end
 

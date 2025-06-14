@@ -15,7 +15,15 @@
     <% end %>
     <h3>Journal entries</h3>
     <% if @entries %>
-      <p>List of journal entries goes here. </p>
+      <% @entries.each do |entry| %>
+        <div class="entry">
+          <p>
+            <a href="/entries/<%= entry["entry_id"] %>"><%= entry["title"] %></a> 
+            <%= entry["created_at"] %>
+          </p>
+          <hr>
+        </div>
+      <% end %>
     <% else %>
       <p>Empty</p>
     <% end %>
