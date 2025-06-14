@@ -1,6 +1,7 @@
 require 'sinatra'
 require 'sqlite3'
 require 'dotenv/load'
+require 'date'
 
 use Rack::Session::Cookie, key: 'rack.session',
                            path: '/',
@@ -9,6 +10,7 @@ use Rack::Session::Cookie, key: 'rack.session',
 db = SQLite3::Database.open "data.db"
 db.results_as_hash = true
 db.execute "CREATE TABLE IF NOT EXISTS users(user_id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT)"
+db.execute "CREATE TABLE IF NOT EXISTS entries(entry_id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, title TEXT, entry TEXT, FOREIGN KEY (user_id) REFERENCES users (user_id))"
 
 get '/' do
   @logged_in = nil
@@ -28,6 +30,30 @@ end
 
 get '/register' do
   erb :register
+end
+
+get '/entries/new' do
+  erb :new_entry
+end
+
+post '/entries/new' do
+  user_id = session[:user_id]
+  if user_id.nil? 
+    return "You need to login first, before you can create journal entries"
+  end
+
+  title = params["title"]
+  entry = params["entry"]
+
+  begin
+    db.execute("INSERT INTO entries (user_id, title, entry) VALUES (?, ?, ?)", [user_id, title, entry])
+    @message = "Journal entry created successfully! Redirecting back to homepage..."
+    erb :message_and_redirect
+  rescue SQLite3::Exception => e
+    puts "Database error: #{e}"
+    @message = "Failed to create a journal entry."
+    erb :message_and_redirect
+  end
 end
 
 post '/login' do
