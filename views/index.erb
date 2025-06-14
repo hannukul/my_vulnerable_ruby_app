@@ -13,6 +13,12 @@
         <a href="/register">Register</a>
       </p>
     <% end %>
+    <h3>Journal entries</h3>
+    <% if @entries %>
+      <p>List of journal entries goes here. </p>
+    <% else %>
+      <p>Empty</p>
+    <% end %>
   </body>
 </html>
 
