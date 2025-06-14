@@ -96,6 +96,16 @@ post '/register' do
   end
 end
 
+get '/entries/:id/delete' do
+  id_to_delete = params[:id]
+  begin
+    db.execute("DELETE from entries WHERE entry_id=?", id_to_delete)
+    redirect '/' 
+  rescue
+    puts "Database error: #{e}"
+  end
+end
+
 get '/logout' do
   session.clear
   redirect '/'

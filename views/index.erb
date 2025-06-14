@@ -20,6 +20,11 @@
           <p>
             <b><%= entry["title"] %></b>
             <i><%= entry["created_at"] %></i>
+            <a href="/entries/<%= entry["entry_id"] %>/delete"
+              style="background-color: red; color: white; padding: 2px 3px; text-decoration: none; border: 1px solid red; border-radius: 2px;"
+              onclick="return confirm('Are you sure?');">
+              Remove
+            </a>
           </p>
           <p>
             <%= entry["entry"] %>
