@@ -5,15 +5,7 @@
     <% if @logged_in %>
       <p>You are logged in as <%= @username %>. |
       <a href="/logout">Logout</a></p>
-
-    <% else %>
-      <p>
-        You are not logged in. |
-        <a href="/login">Login</a> |
-        <a href="/register">Register</a>
-      </p>
-    <% end %>
-    <hr>
+      <hr>
     <h3>Journal entries</h3>
     <% if @entries %>
       <% @entries.each do |entry| %>
@@ -35,6 +27,14 @@
       <% end %>
     <% else %>
       <p>Empty</p>
+    <% end %>
+
+    <% else %>
+      <p>
+        You are not logged in. |
+        <a href="/login">Login</a> |
+        <a href="/register">Register</a>
+      </p>
     <% end %>
   </body>
 </html>

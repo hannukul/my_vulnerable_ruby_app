@@ -17,11 +17,12 @@ get '/' do
 
   if session[:user_id].nil?
     @logged_in = false
+    @entries = nil
   else
     @logged_in = true
     @username = session[:username] 
+    @entries = db.query "SELECT entry_id, created_at, title, entry FROM entries WHERE user_id=?", session[:user_id]
   end
-  @entries = db.query "SELECT entry_id, created_at, title, entry FROM entries WHERE user_id=?", session[:user_id]
   puts @entries
   erb :index
 end
