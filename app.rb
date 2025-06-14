@@ -85,9 +85,15 @@ post '/register' do
 
   username = params["username"]
   password = params["password"]
-  
+  # example of malicious username entry
+  #attacker', 'maliciouspass'); DROP TABLE users; --
   begin
-    db.execute("INSERT INTO users (username, password) VALUES (?, ?)", [username, password])
+    # this would eliminate the issue sql injeciton
+    # db.execute("INSERT INTO users (username, password) VALUES (?, ?)", [username, password])
+
+    # this is a bad way to create sql query and is vulnerable to sql injection
+    sql_query = "INSERT INTO users (username, password) VALUES ('#{username}','#{password}')"
+    db.execute_batch(sql_query)
     @message = "Registration successful! Redirecting to home..."
     erb :message_and_redirect
   rescue SQLite3::Exception => e
