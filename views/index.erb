@@ -7,6 +7,11 @@
       <a href="/logout">Logout</a></p>
       <hr>
     <h3>Journal entries</h3>
+    <a href="/entries/new"
+    style="background-color: blue; color: white; padding: 2px 3px; text-decoration: none; border: 1px solid blue; border-radius: 2px;">
+    Add New 
+    </a>
+
     <% if @entries %>
       <% @entries.each do |entry| %>
         <div class="entry">
