@@ -18,8 +18,11 @@
       <% @entries.each do |entry| %>
         <div class="entry">
           <p>
-            <a href="/entries/<%= entry["entry_id"] %>"><%= entry["title"] %></a> 
-            <%= entry["created_at"] %>
+            <b><%= entry["title"] %></b>
+            <i><%= entry["created_at"] %></i>
+          </p>
+          <p>
+            <%= entry["entry"] %>
           </p>
           <hr>
         </div>
