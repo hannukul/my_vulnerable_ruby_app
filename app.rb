@@ -2,6 +2,7 @@ require 'sinatra'
 require 'sqlite3'
 require 'dotenv/load'
 require 'date'
+require 'bcrypt'
 
 use Rack::Session::Cookie, key: 'rack.session',
                            path: '/',
@@ -62,18 +63,24 @@ end
 post '/login' do
   username = params["username"]
   password = params["password"]
-  results = db.get_first_row "SELECT user_id, username, password FROM users WHERE username=? AND password=?", [username, password]
+  #/////////////////////////////////////A PROPER WAY TO CHECK PASSWORD DURING LOGIN
+  # row = db.get_first_row("SELECT user_id, password FROM users WHERE username=?", [username])
+  # if row && BCrypt::Password.new(row['password']) == password
+    # Authentication successful
+    # session[:user_id] = row["user_id"]
+    # session[:username] = username
+    # redirect '/'
+  # else
+    # return "Invalid login details"
+  # end
+  #///////////////////////////////////////////
 
+  results = db.get_first_row "SELECT user_id, username, password FROM users WHERE username=? AND password=?", [username, password]
   if results.nil?
-    puts "to console: user not found"
     return "No user found"
   else
-    puts results
     session[:user_id] = results["user_id"]
     session[:username] = results["username"]
-    puts session.inspect
-
-    # return "Welcome, #{username}!"
     redirect '/'
   end
 
@@ -82,9 +89,15 @@ end
 post '/register' do
   # TODO
   # check if user exists before adding.
-
   username = params["username"]
   password = params["password"]
+
+#///////////////////////////////////////// HERE HOW TO CORRECTLY HASH PASSWORDS
+  # hashed_pw = BCrypt::Password.create(password)
+  # db.execute("INSERT INTO users (username, password) VALUES (?, ?)", [username, hashed_pw])
+#/////////////////////////////////////
+
+
   # example of malicious username entry
   #attacker', 'maliciouspass'); DROP TABLE users; --
   begin
@@ -93,6 +106,8 @@ post '/register' do
 
     # this is a bad way to create sql query and is vulnerable to sql injection
     sql_query = "INSERT INTO users (username, password) VALUES ('#{username}','#{password}')"
+
+
     db.execute_batch(sql_query)
     @message = "Registration successful! Redirecting to home..."
     erb :message_and_redirect
@@ -104,6 +119,24 @@ post '/register' do
 end
 
 get '/entries/:id/delete' do
+  # Here's a more secure version that checks that the logged in user
+  # is the owner of the journal entry
+  #
+  # user_id = session[:user_id]
+  # halt 401, "Please log in to continue" unless user_id
+  # entry = db.execute("SELECT * FROM entries WHERE entry_id=? AND user_id=?", [id_to_delete, user_id]).first
+  #if entry
+  # db.execute("DELETE FROM entries WHERE entry_id=?", id_to_delete)
+     #redirect '/'
+  # else
+    # halt 403, "Not authorized to delete this entry"
+  # end
+  
+
+
+  # This is an example of broken access control
+  # Anyone is able to delete an entry with GET request to this endpoint with an entry id
+  # For example with curl to delete entry with id of 4: curl -X GET http://localhost:4567/entries/4/delete
   id_to_delete = params[:id]
   begin
     db.execute("DELETE from entries WHERE entry_id=?", id_to_delete)
