@@ -3,6 +3,9 @@
     <h1>Super simple journal app</h1>
     <h2>Profile of <%= @username %></h1>
     <h3>Profile picture</h3>
+    <% if session[:profile_image] %>
+      <img src="<%= session[:profile_image] %>" width="300" height="300">
+    <% end %>
     <form action="/profile/url" method="post">
       <label for="profile_image_url">Profile Image URL:</label><br>
       <input type="text" id="profile_image_url" name="profile_image_url"><br>

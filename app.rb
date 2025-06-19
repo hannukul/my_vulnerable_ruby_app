@@ -3,6 +3,8 @@ require 'sqlite3'
 require 'dotenv/load'
 require 'date'
 require 'bcrypt'
+require 'open-uri'
+
 
 use Rack::Session::Cookie, key: 'rack.session',
                            path: '/',
@@ -149,6 +151,37 @@ end
 get '/profile' do 
   erb :profile
 end
+
+post '/profile/url' do 
+  url = params["profile_image_url"]
+
+  begin
+    uri = URI.parse(url)
+    ext = File.extname(uri.path)
+    ext = '.jpg' if ext.empty?  
+
+    filename = "#{SecureRandom.hex(10)}#{ext}"
+    filepath = File.join(settings.public_folder, 'uploads', filename)
+
+    URI.open(uri, open_timeout: 5, read_timeout: 5) do |image|
+      raise "Not an image!" unless image.content_type.start_with?('image/')
+      File.open(filepath, 'wb') do |file|
+        file.write(image.read)
+      end
+    end
+    session[:profile_image] = "/uploads/#{filename}"
+    puts session[:profile_image]
+    erb :profile
+
+  rescue => e
+    status 400
+    "Error fetching image: #{e.message}"
+  end
+end
+
+post '/profile/file' do 
+end
+
 
 get '/logout' do
   session.clear
