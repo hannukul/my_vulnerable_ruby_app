@@ -152,8 +152,37 @@ get '/profile' do
   erb :profile
 end
 
+
+# THIS ENDPOINT IS RESPONSIBLE FOR FETCHING PROFILE IMAGE AND IS VULNERABLE TO OWASP TOP10 2021 A10: Server-side Request Forgery
 post '/profile/url' do 
+  
+
   url = params["profile_image_url"]
+
+
+  # This is the code has the checks needed to make endpoint SAFE
+
+  # ALLOWED_DOMAINS = ['imgur.com']  #Domain whitelist
+  #
+  # uri = URI.parse(url)
+  #
+  # # 1. Only allow http and https protocols
+  # halt 400, "Invalid URL scheme" unless ['http', 'https'].include?(uri.scheme)
+  #
+  # # 2. Check domain whitelist
+  # host = uri.host
+  # halt 400, "Domain not allowed" unless ALLOWED_DOMAINS.any? { |d| host&.end_with?(d) }
+  #
+  # # 3. Resolve and block private IPs
+  # def private_ip?(ip)
+  #   ip = IPAddr.new(ip)
+  #   ip.private? || ip.loopback? || ip.link_local?
+  # end
+  #
+  # ips = Resolv.getaddresses(host)
+  # if ips.any? { |ip| private_ip?(ip) }
+  #   halt 400, "URL resolves to private IP, not allowed"
+  # end
 
   begin
     uri = URI.parse(url)
@@ -177,6 +206,7 @@ post '/profile/url' do
     status 400
     "Error fetching image: #{e.message}"
   end
+  
 end
 
 post '/profile/file' do 
