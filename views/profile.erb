@@ -1,0 +1,20 @@
+<html>
+  <body>
+    <h1>Super simple journal app</h1>
+    <h2>Profile of <%= @username %></h1>
+    <h3>Profile picture</h3>
+    <form action="/profile/url" method="post">
+      <label for="profile_image_url">Profile Image URL:</label><br>
+      <input type="text" id="profile_image_url" name="profile_image_url"><br>
+      <input type="submit" value="Fetch">
+    </form>
+    <br>
+    <p>or</p>
+    <br>
+    <form action="/profile/file" method="post">
+      <label for="profile_image_file">Profile Image File Upload:</label><br>
+      <input type="submit" value="Upload">
+    </form>
+  </body>
+</html>
+

@@ -146,6 +146,10 @@ get '/entries/:id/delete' do
   end
 end
 
+get '/profile' do 
+  erb :profile
+end
+
 get '/logout' do
   session.clear
   redirect '/'

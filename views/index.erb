@@ -3,7 +3,7 @@
     <h1>Super simple journal app</h1>
     <h2>Home page</h2>
     <% if @logged_in %>
-      <p>You are logged in as <%= @username %>. |
+      <p>You are logged in as <a href="/profile"><%= @username %></a>. |
       <a href="/logout">Logout</a></p>
       <hr>
     <h3>Journal entries</h3>
