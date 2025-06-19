@@ -154,6 +154,7 @@ end
 
 
 # THIS ENDPOINT IS RESPONSIBLE FOR FETCHING PROFILE IMAGE AND IS VULNERABLE TO OWASP TOP10 2021 A10: Server-side Request Forgery
+# Also A05 Misconfiguration is demonstrated here, as improper handling of errors leads to stack trace being exposed to the user
 post '/profile/url' do 
   
 
@@ -184,7 +185,14 @@ post '/profile/url' do
   #   halt 400, "URL resolves to private IP, not allowed"
   # end
 
-  begin
+
+
+# OWASP Top10 A05: Misconfiguration
+# Here the vulnerability is exposing stack trace to the enduser.
+# This is fixed by using begin-rescue blocks
+# Safe code changes are commented out here.
+  
+  # begin
     uri = URI.parse(url)
     ext = File.extname(uri.path)
     ext = '.jpg' if ext.empty?  
@@ -202,10 +210,10 @@ post '/profile/url' do
     puts session[:profile_image]
     erb :profile
 
-  rescue => e
-    status 400
-    "Error fetching image: #{e.message}"
-  end
+  # rescue => e
+  #  status 400
+  #   "Error fetching image: #{e.message}"
+  # end
   
 end
 
