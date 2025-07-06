@@ -1,10 +1,10 @@
 require 'sinatra'
 require 'sqlite3'
 require 'dotenv/load'
-require 'date'
 require 'bcrypt'
+require 'resolv'
 require 'open-uri'
-
+require 'date'
 
 use Rack::Session::Cookie, key: 'rack.session',
                            path: '/',
@@ -116,12 +116,12 @@ post '/register' do
 
     ###### FIX for A03 ######################
     ## this code eliminates the issue sql injeciton
-    db.execute("INSERT INTO users (username, password) VALUES (?, ?)", [username, password])
+    # db.execute("INSERT INTO users (username, password) VALUES (?, ?)", [username, password])
     ##############################
 
     ##### Also comment out this unsafe code
-    #sql_query = "INSERT INTO users (username, password) VALUES ('#{username}','#{password}')"
-    #db.execute_batch(sql_query)
+    sql_query = "INSERT INTO users (username, password) VALUES ('#{username}','#{password}')"
+    db.execute_batch(sql_query)
     ####################################################
 
     @message = "Registration successful! Redirecting to home..."
@@ -167,21 +167,23 @@ get '/entries/:id/delete' do
 end
 
 get '/profile' do 
+  @username = session[:username] 
   erb :profile
 end
 
 
-# THIS ENDPOINT IS RESPONSIBLE FOR FETCHING PROFILE IMAGE AND IS VULNERABLE TO OWASP TOP10 2021 A10: Server-side Request Forgery
-# Also A05 Misconfiguration is demonstrated here, as improper handling of errors leads to stack trace being exposed to the user
 post '/profile/url' do 
   
 
   url = params["profile_image_url"]
 
 
-  # This is the code has the checks needed to make endpoint SAFE
+ ######## OWASP TOP10 2021 A10: Server-side Request Forgery
+ # This is vulnerability because server makes a request to user supplied URL without validation
+ # 
+ # Following code implements whitelist and other fixes
 
-  # ALLOWED_DOMAINS = ['imgur.com']  #Domain whitelist
+  # ALLOWED_DOMAINS = ['imgur.com', 'localhost']  #Domain whitelist
   #
   # uri = URI.parse(url)
   #
@@ -204,13 +206,15 @@ post '/profile/url' do
   # end
 
 
-
+########################################
 # OWASP Top10 A05: Misconfiguration
-# Here the vulnerability is exposing stack trace to the enduser.
+# Here the vulnerability is exposing stack trace to the enduser
+# when invalid image url is given in the profile page of the site
+#
 # This is fixed by using begin-rescue blocks
 # Safe code changes are commented out here.
   
-  # begin
+#  begin
     uri = URI.parse(url)
     ext = File.extname(uri.path)
     ext = '.jpg' if ext.empty?  
