@@ -65,7 +65,10 @@ end
 post '/login' do
   username = params["username"]
   password = params["password"]
-  #/////////////////////////////////////A PROPER WAY TO CHECK PASSWORD DURING LOGIN
+
+  ## Fix related to A02: Cryptographic failure, about lack of password hashing
+  ##
+  ## Here's how to check password when it's properly hashed
   # row = db.get_first_row("SELECT user_id, password FROM users WHERE username=?", [username])
   # if row && BCrypt::Password.new(row['password']) == password
     # Authentication successful
@@ -75,8 +78,8 @@ post '/login' do
   # else
     # return "Invalid login details"
   # end
-  #///////////////////////////////////////////
 
+  ## This login code only works with plaintext passwords
   results = db.get_first_row "SELECT user_id, username, password FROM users WHERE username=? AND password=?", [username, password]
   if results.nil?
     return "No user found"
@@ -89,28 +92,38 @@ post '/login' do
 end
 
 post '/register' do
-  # TODO
-  # check if user exists before adding.
   username = params["username"]
   password = params["password"]
 
-#///////////////////////////////////////// HERE HOW TO CORRECTLY HASH PASSWORDS
-  # hashed_pw = BCrypt::Password.create(password)
-  # db.execute("INSERT INTO users (username, password) VALUES (?, ?)", [username, hashed_pw])
-#/////////////////////////////////////
+## EXAMPLE of A02: Cryptographic failure ######################################
+## In the following code, passwords are saved to database in plaintext
+## Here's a how to fix this vulnerability
+# password = BCrypt::Password.create(password)
+
+## Additional changes has been made to login route as well to make login work with hashed passwords
+###############################################################################
 
 
-  # example of malicious username entry
-  #attacker', 'maliciouspass'); DROP TABLE users; --
+
+## EXAMPLE of A03: Injection
+## Register page is vulnerable to SQL injection because sql statements are not 
+## properly parameterized
+## 
+## Example of malicious username entry
+## attacker', 'maliciouspass'); DROP TABLE users; --
+## which drops the table users
   begin
-    # this would eliminate the issue sql injeciton
-    # db.execute("INSERT INTO users (username, password) VALUES (?, ?)", [username, password])
 
-    # this is a bad way to create sql query and is vulnerable to sql injection
-    sql_query = "INSERT INTO users (username, password) VALUES ('#{username}','#{password}')"
+    ###### FIX for A03 ######################
+    ## this code eliminates the issue sql injeciton
+    db.execute("INSERT INTO users (username, password) VALUES (?, ?)", [username, password])
+    ##############################
 
+    ##### Also comment out this unsafe code
+    #sql_query = "INSERT INTO users (username, password) VALUES ('#{username}','#{password}')"
+    #db.execute_batch(sql_query)
+    ####################################################
 
-    db.execute_batch(sql_query)
     @message = "Registration successful! Redirecting to home..."
     erb :message_and_redirect
   rescue SQLite3::Exception => e
