@@ -121,31 +121,36 @@ post '/register' do
 end
 
 get '/entries/:id/delete' do
-  # Here's a more secure version that checks that the logged in user
+  id_to_delete = params[:id]
+
+  #############################################################
+  # Here's a fix for A01 vulnerability
+  #
   # is the owner of the journal entry
   #
   # user_id = session[:user_id]
-  # halt 401, "Please log in to continue" unless user_id
+  # halt 401, "Please log in to continue\n" unless user_id
   # entry = db.execute("SELECT * FROM entries WHERE entry_id=? AND user_id=?", [id_to_delete, user_id]).first
-  #if entry
-  # db.execute("DELETE FROM entries WHERE entry_id=?", id_to_delete)
-     #redirect '/'
+  # if entry
+  #     db.execute("DELETE FROM entries WHERE entry_id=?", id_to_delete)
+  #    redirect '/'
   # else
-    # halt 403, "Not authorized to delete this entry"
+  #    halt 403, "Not authorized to delete this entry"
   # end
-  
+  ###############################################################
 
-
-  # This is an example of broken access control
+  ###############################################################
+  # EXAMPLE of A01:2021 Broken Access Control
+  #
   # Anyone is able to delete an entry with GET request to this endpoint with an entry id
   # For example with curl to delete entry with id of 4: curl -X GET http://localhost:4567/entries/4/delete
-  id_to_delete = params[:id]
   begin
     db.execute("DELETE from entries WHERE entry_id=?", id_to_delete)
     redirect '/' 
   rescue
     puts "Database error: #{e}"
   end
+  ################################################################
 end
 
 get '/profile' do 
