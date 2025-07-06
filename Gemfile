@@ -1,0 +1,9 @@
+source 'https://rubygems.org'
+
+gem 'sinatra'
+gem 'sqlite3'
+gem 'dotenv'
+gem 'bcrypt'
+gem 'rack'
+gem 'rackup'
+gem 'puma'
