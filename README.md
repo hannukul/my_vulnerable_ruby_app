@@ -13,7 +13,8 @@ A10:2021 Server-side Request Forgery<br>
 ## How to run the app
 1. Make sure you have docker installed
 2. Clone the repository<br>
-git clone https://github.com/hannukul/my_vulnerable_ruby_app
+git clone https://github.com/hannukul/my_vulnerable_ruby_app<br>
+cd my_vulnerable_ruby_app
 3.  Build docker container<br>
 docker build -t sinatra-vuln-demo .
 4.  Run docker container<br>
